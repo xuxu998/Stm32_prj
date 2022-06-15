@@ -2,6 +2,7 @@
 #define _STM32_HEADER_
 #include "stdint.h"
 #include "stm32f4xx_spi.h"
+#include "stm32f4xx_i2c.h"
 
 #define __vo    volatile
 
@@ -266,6 +267,11 @@ typedef struct
 #define SPI6						((SPI_RegDef_t*)SPI6_BASEADDR)
 
 
+#define I2C1                            ((I2C_RegDef_t*)I2C1_BASEADDR)
+#define I2C2                            ((I2C_RegDef_t*)I2C2_BASEADDR)
+#define I2C3                            ((I2C_RegDef_t*)I2C3_BASEADDR)
+
+
 
 #define RCC                         ((RCC_RegDef_t*)RRC_BASEADDR)
 #define EXTI                        ((EXTI_RegDef_t*)EXTI_BASEADDR)
@@ -343,16 +349,18 @@ typedef struct
 
 /* Clock disable macros for I2Cx peripherals */
 
-
+#define I2C1_PCLK_DI()          (RCC->APB1ENR &= ~(1<<21))
+#define I2C2_PCLK_DI()          (RCC->APB1ENR &= ~(1<<22))
+#define I2C3_PCLK_DI()          (RCC->APB1ENR &= ~(1<<23))
 
 /* Clock disable macros for SPIx peripherals */
 
-#define SPI1_PCLK_DI()          (RCC->APB2RSTR |= (1<<12))
-#define SPI2_PCLK_DI()          (RCC->APB1RSTR |= (1<<14))
-#define SPI3_PCLK_DI()          (RCC->APB1RSTR |= (1<<15))
-#define SPI4_PCLK_DI()          (RCC->APB2RSTR |= (1<<13))
-#define SPI5_PCLK_DI()          (RCC->APB2RSTR |= (1<<20))
-#define SPI6_PCLK_DI()          (RCC->APB2RSTR |= (1<<21))
+#define SPI1_PCLK_DI()          (RCC->APB2RSTR &= ~(1<<12))
+#define SPI2_PCLK_DI()          (RCC->APB1RSTR &= ~(1<<14))
+#define SPI3_PCLK_DI()          (RCC->APB1RSTR &= ~(1<<15))
+#define SPI4_PCLK_DI()          (RCC->APB2RSTR &= ~(1<<13))
+#define SPI5_PCLK_DI()          (RCC->APB2RSTR &= ~(1<<20))
+#define SPI6_PCLK_DI()          (RCC->APB2RSTR &= ~(1<<21))
 
 /* Clock disable macros for USARTx peripherals */
 
@@ -455,9 +463,75 @@ typedef struct
 #define UDR_BIT_POSITION			3
 #define CRCERR_BIT_POSITION			4
 #define MODF_BIT_POSITION			5
-#define OVR_BIT_POSITION			6
+#define SPI_OVR_BIT_POSITION			6
 #define BSY_BIT_POSITION			7
 #define FRE_BIT_POSITIOn			8
+
+
+/* macro for I2C peripherals */
+
+/* bit position I2C_CR1 */
+#define PE_BIT_POSITION  0
+#define SMBUS_MODE_BIT_POSITION 1
+#define SMBUS_TYPE_BIT_POSITION 3
+#define ARP_BIT_POSITION 4
+#define ENPEC_BIT_POSITION 5
+#define ENGC_BIT_POSITION 6
+#define NOSTRETCH_BIT_POSITION 7
+#define START_BIT_POSITION 8
+#define STOP_BIT_POSITION 9
+#define ACK_BIT_POSITION 10
+#define POS_BIT_POSITION 11
+#define SPI_PEC_BIT_POSITION 12
+#define ALERT_BIT_POSITION 13
+#define SWRST_BIT_POSITION 15
+
+/* bit position for I2C_CR2 */
+#define FREQ_BIT_POSITION 0
+#define ITERREN_BIT_POSITION 8
+#define ITEVTEN_BIT_POSITION 9
+#define ITBUFEN_BIT_POSITION 10
+#define DMAEN_BIT_POSITION 11
+#define LAST_BIT_POSITION 12
+
+/* bit position for I2C_OAR1 */
+#define ADD0_BIT_POSITION 0
+#define ADD_BIT_POSITION 1
+#define ADD_98_BIT_POSITION 8
+#define ADDMODE_BIT_POSITION 15
+
+/* bit position for I2C_SR1 */
+#define SB_BIT_POSITION 0
+#define ADDR_BIT_POSITION 1
+#define BTF_BIT_POSITION 2
+#define ADD10_BIT_POSITION 3
+#define STOPF_BIT_POSITION 4
+
+#define RxNE_BIT_POSITION 6
+#define TxE_BIT_POSITION 7
+#define BERR_BIT_POSITION 8
+#define ARLO_BIT_POSITION 9
+#define AF_BIT_POSITION 10
+#define I2C_OVR_BIT_POSITION 11
+#define PECERR_BIT_POSITION 12
+#define TIMEOUT_BIT_POSITION 14
+#define SMBALERT_BIT_POSITION 15
+
+/* bit position for I2C_SR2 */
+#define MSL_BIT_POSITION 0
+#define BUSY_BIT_POSITION 1
+#define TRA_BIT_POSITION 2
+#define GENCALL_BIT_POSITION 4
+#define SMBDEFAULT_BIT_POSITION 5
+#define SMBHOST_BIT_POSITION 6
+#define DUALF_BIT_POSITION 7
+#define I2C_PEC_BIT_POSITION 8
+
+/* bit position for I2C_CCR */
+
+#define CCR_BIT_POSITION 0
+#define DUTY_BIT_POSITION 14
+#define FS_BIT_POSITION 15
 
 /*other macro*/
 #define EMPTY 						0

@@ -37,15 +37,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  16 .debug_ranges 00000108  00000000  00000000  00012490  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_macro  00002024  00000000  00000000  00012598  2**0
+ 17 .debug_macro  000022cc  00000000  00000000  00012598  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_line   00001555  00000000  00000000  000145bc  2**0
+ 18 .debug_line   0000158e  00000000  00000000  00014864  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .debug_str    00008ee7  00000000  00000000  00015b11  2**0
+ 19 .debug_str    00009484  00000000  00000000  00015df2  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 20 .comment      00000050  00000000  00000000  0001e9f8  2**0
+ 20 .comment      00000050  00000000  00000000  0001f276  2**0
                   CONTENTS, READONLY
- 21 .debug_frame  00000454  00000000  00000000  0001ea48  2**2
+ 21 .debug_frame  00000454  00000000  00000000  0001f2c8  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -1078,7 +1078,7 @@ void SPI_PeriClockControl(SPI_RegDef_t *pSPIx,uint8_t EnorDi)
  800084c:	4b1f      	ldr	r3, [pc, #124]	; (80008cc <SPI_PeriClockControl+0x114>)
  800084e:	6a5b      	ldr	r3, [r3, #36]	; 0x24
  8000850:	4a1e      	ldr	r2, [pc, #120]	; (80008cc <SPI_PeriClockControl+0x114>)
- 8000852:	f443 5380 	orr.w	r3, r3, #4096	; 0x1000
+ 8000852:	f423 5380 	bic.w	r3, r3, #4096	; 0x1000
  8000856:	6253      	str	r3, [r2, #36]	; 0x24
 	        if(pSPIx == SPI2)
  8000858:	687b      	ldr	r3, [r7, #4]
@@ -1089,7 +1089,7 @@ void SPI_PeriClockControl(SPI_RegDef_t *pSPIx,uint8_t EnorDi)
  8000860:	4b1a      	ldr	r3, [pc, #104]	; (80008cc <SPI_PeriClockControl+0x114>)
  8000862:	6a1b      	ldr	r3, [r3, #32]
  8000864:	4a19      	ldr	r2, [pc, #100]	; (80008cc <SPI_PeriClockControl+0x114>)
- 8000866:	f443 4380 	orr.w	r3, r3, #16384	; 0x4000
+ 8000866:	f423 4380 	bic.w	r3, r3, #16384	; 0x4000
  800086a:	6213      	str	r3, [r2, #32]
 	        if(pSPIx == SPI3)
  800086c:	687b      	ldr	r3, [r7, #4]
@@ -1100,7 +1100,7 @@ void SPI_PeriClockControl(SPI_RegDef_t *pSPIx,uint8_t EnorDi)
  8000874:	4b15      	ldr	r3, [pc, #84]	; (80008cc <SPI_PeriClockControl+0x114>)
  8000876:	6a1b      	ldr	r3, [r3, #32]
  8000878:	4a14      	ldr	r2, [pc, #80]	; (80008cc <SPI_PeriClockControl+0x114>)
- 800087a:	f443 4300 	orr.w	r3, r3, #32768	; 0x8000
+ 800087a:	f423 4300 	bic.w	r3, r3, #32768	; 0x8000
  800087e:	6213      	str	r3, [r2, #32]
 	        if(pSPIx == SPI4)
  8000880:	687b      	ldr	r3, [r7, #4]
@@ -1111,7 +1111,7 @@ void SPI_PeriClockControl(SPI_RegDef_t *pSPIx,uint8_t EnorDi)
  8000888:	4b10      	ldr	r3, [pc, #64]	; (80008cc <SPI_PeriClockControl+0x114>)
  800088a:	6a5b      	ldr	r3, [r3, #36]	; 0x24
  800088c:	4a0f      	ldr	r2, [pc, #60]	; (80008cc <SPI_PeriClockControl+0x114>)
- 800088e:	f443 5300 	orr.w	r3, r3, #8192	; 0x2000
+ 800088e:	f423 5300 	bic.w	r3, r3, #8192	; 0x2000
  8000892:	6253      	str	r3, [r2, #36]	; 0x24
 	        if(pSPIx == SPI5)
  8000894:	687b      	ldr	r3, [r7, #4]
@@ -1122,7 +1122,7 @@ void SPI_PeriClockControl(SPI_RegDef_t *pSPIx,uint8_t EnorDi)
  800089c:	4b0b      	ldr	r3, [pc, #44]	; (80008cc <SPI_PeriClockControl+0x114>)
  800089e:	6a5b      	ldr	r3, [r3, #36]	; 0x24
  80008a0:	4a0a      	ldr	r2, [pc, #40]	; (80008cc <SPI_PeriClockControl+0x114>)
- 80008a2:	f443 1380 	orr.w	r3, r3, #1048576	; 0x100000
+ 80008a2:	f423 1380 	bic.w	r3, r3, #1048576	; 0x100000
  80008a6:	6253      	str	r3, [r2, #36]	; 0x24
 	        if(pSPIx == SPI6)
  80008a8:	687b      	ldr	r3, [r7, #4]
@@ -1133,7 +1133,7 @@ void SPI_PeriClockControl(SPI_RegDef_t *pSPIx,uint8_t EnorDi)
  80008b0:	4b06      	ldr	r3, [pc, #24]	; (80008cc <SPI_PeriClockControl+0x114>)
  80008b2:	6a5b      	ldr	r3, [r3, #36]	; 0x24
  80008b4:	4a05      	ldr	r2, [pc, #20]	; (80008cc <SPI_PeriClockControl+0x114>)
- 80008b6:	f443 1300 	orr.w	r3, r3, #2097152	; 0x200000
+ 80008b6:	f423 1300 	bic.w	r3, r3, #2097152	; 0x200000
  80008ba:	6253      	str	r3, [r2, #36]	; 0x24
 }
  80008bc:	bf00      	nop
