@@ -1,0 +1,12 @@
+../Src/driver/stm32f4xx_spi.c:19:6:SPI_Init	24	static
+../Src/driver/stm32f4xx_spi.c:67:6:SPI_Deinit	16	static
+../Src/driver/stm32f4xx_spi.c:108:6:SPI_PeriClockControl	16	static
+../Src/driver/stm32f4xx_spi.c:180:16:Is_Empty	16	static
+../Src/driver/stm32f4xx_spi.c:184:16:Is_16BitFrame	16	static
+../Src/driver/stm32f4xx_spi.c:188:6:SPI_SendData	24	static
+../Src/driver/stm32f4xx_spi.c:227:6:SPI_ReceiveData	24	static
+../Src/driver/stm32f4xx_spi.c:245:6:SPI_InteruptConfig	16	static
+../Src/driver/stm32f4xx_spi.c:278:6:SPI_IrqHandling	16	static
+../Src/driver/stm32f4xx_spi.c:296:6:SPI_PriorityConfig	16	static
+../Src/driver/stm32f4xx_spi.c:314:6:SPI_PeripheralControl	16	static
+../Src/driver/stm32f4xx_spi.c:341:6:SPI_SSIConfig	16	static
