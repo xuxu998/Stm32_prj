@@ -9,4 +9,6 @@
 ../Src/driver/stm32f4xx_spi.c:278:6:SPI_IrqHandling	16	static
 ../Src/driver/stm32f4xx_spi.c:296:6:SPI_PriorityConfig	16	static
 ../Src/driver/stm32f4xx_spi.c:314:6:SPI_PeripheralControl	16	static
-../Src/driver/stm32f4xx_spi.c:341:6:SPI_SSIConfig	16	static
+../Src/driver/stm32f4xx_spi.c:339:6:SPI_SSIConfig	16	static
+../Src/driver/stm32f4xx_spi.c:353:6:SPI_SSOEConfig	16	static
+../Src/driver/stm32f4xx_spi.c:366:9:SPI_GetStatusFlag	16	static

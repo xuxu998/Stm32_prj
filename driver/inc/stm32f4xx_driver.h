@@ -386,6 +386,10 @@ typedef struct
 #define IRQ_NO_EXTI4 				10
 #define IRQ_NO_EXTI9_5 				23
 #define IRQ_NO_EXTI15_10 			40
+#define IRQ_NO_SPI2					36
+#define IRQ_NO_SPI1					35
+#define IRQ_NO_SPI3					51
+
 
 #define IMPLEMENTED_BITS 			4
 
@@ -466,7 +470,9 @@ typedef struct
 #define SPI_OVR_BIT_POSITION			6
 #define BSY_BIT_POSITION			7
 #define FRE_BIT_POSITIOn			8
-
+#define SPI_READY		  			0
+#define SPI_BUSY_IN_RX    			1
+#define SPI_BUSY_IN_TX    			2
 
 /* macro for I2C peripherals */
 

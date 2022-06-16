@@ -62,7 +62,21 @@ int main(void)
 	return 0;
 }
 #endif
-/*
+void Delay(void)
+{
+	for(int us = 0 ; us <= 500000 ; us++)
+	{
+
+	}
+}
+GPIO_PinConfig_t UserButton =
+{
+		.GPIO_PinNumber = GPIO_PIN_NO_5,
+		.GPIO_PinMode = GPIO_MODE_IN,
+		.GPIO_PinSpeed = GPIO_SPEED_LOW,
+		.GPIO_PinPuPdControl = GPIO_PIN_PU,
+		.GPIO_AltFunMode = 0
+};/*
  * PB12 SPI2_NSS
  * PB13 SPI2_SCK
  * PB14 SPI2_MISO
@@ -97,26 +111,40 @@ void SPI2_Init(void)
 	SPI2handle.SPIx = SPI2;
 	SPI2handle.SPIConfig.SPI_BusConfig = SPI_BUS_FULL_DUPLEX;
 	SPI2handle.SPIConfig.SPI_DeviceMode = SPI_DEVICE_MASTER;
-	SPI2handle.SPIConfig.SPI_ClkSpeed = SPI_CLOCK_DIV2;
+	SPI2handle.SPIConfig.SPI_ClkSpeed = SPI_CLOCK_DIV32;
 	SPI2handle.SPIConfig.SPI_DFF = SPI_DFF_8BITS;
-	SPI2handle.SPIConfig.SPI_CPHA = SPI_CPHA_LOW;
-	SPI2handle.SPIConfig.SPI_CPOL = SPI_CPOL_LOW;
-	SPI2handle.SPIConfig.SPI_SSM = SPI_SSM_EN;
+	SPI2handle.SPIConfig.SPI_CPHA = SPI_CPHA_HIGH;
+	SPI2handle.SPIConfig.SPI_CPOL = SPI_CPOL_HIGH;
+	SPI2handle.SPIConfig.SPI_SSM = SPI_SSM_DI;
 	SPI_Init(&SPI2handle);
 
 }
 int main(void)
 {
-	char user_data[] = "hello world";
+	char user_data[] = "hello world pham ngoc dat";
+	GPIO_Handle_t GpioButton;
+		memset(&GpioButton,0,sizeof(GpioButton));
+		GpioButton.pGPIOx = GPIOD;
+		GpioButton.GPIO_PinConfig = UserButton;
+		GPIO_PeriClockControl(GpioButton.pGPIOx,ENABLE);
+		GPIO_Init(&GpioButton);
 	SPI2_GPIOInits();
 	SPI2_Init();
 	//enable SPI2 peripherals
-	SPI_SSIConfig(SPI2,ENABLE);
-	SPI_PeripheralControl(SPI2,ENABLE);
-	SPI_SendData(SPI2,(uint8_t*)user_data,(uint32_t)strlen(user_data));
-	SPI_PeripheralControl(SPI2,DISABLE);
+	//SPI_SSIConfig(SPI2,ENABLE);
+	SPI_SSOEConfig(SPI2,ENABLE);
+	//SPI_PeripheralControl(SPI2,ENABLE);
+	//SPI_SSOEConfig(SPI2,ENABLE);
+	//SPI_SendData(SPI2,(uint8_t*)user_data,(uint32_t)strlen(user_data));
+	//SPI_PeripheralControl(SPI2,DISABLE);
 	while(1)
 	{
+		while(GPIO_ReadFromInputPin(GPIOD,GPIO_PIN_NO_5));
+		Delay();
+		SPI_PeripheralControl(SPI2,ENABLE);
+		SPI_SendData(SPI2,(uint8_t*)user_data,(uint32_t)strlen(user_data));
+		while(SPI_GetStatusFlag(SPI2));
+		SPI_PeripheralControl(SPI2,DISABLE);
 
 	}
 	return 0;

@@ -36,6 +36,13 @@ typedef struct
      /* data */
      SPI_RegDef_t *SPIx;
      SPI_Config_t SPIConfig;
+     uint8_t *Txbuffer;
+     uint8_t *Rxbuffer;
+     uint32_t TxLength;
+     uint32_t RxLength;
+     uint8_t TxState;
+     uint8_t RxState;
+
 
 }SPI_Handle_t;
 
@@ -49,9 +56,14 @@ void SPI_PeriClockControl(SPI_RegDef_t *pSPIx,uint8_t EnorDi);
 /* Send and receive data*/
 
 /*  */
+uint8_t SPI_GetStatusFlag(SPI_RegDef_t *pSPIx);
 void SPI_SendData(SPI_RegDef_t *pSPIx, uint8_t *Txbuffer, uint32_t Len);
 /*  */
 void SPI_ReceiveData(SPI_RegDef_t *pSPIx, uint8_t *Rxbuffer, uint32_t Len);
+/*  */
+void SPI_SendDataIT(SPI_Handle_t *pSPIx_handle, uint8_t *Txbuffer, uint32_t Len);
+/*  */
+void SPI_ReceiveDataIT(SPI_Handle_t *pSPIx_handle, uint8_t *Rxbuffer, uint32_t Len);
 /*  */
 void SPI_InteruptConfig(uint8_t IRQNumber, uint8_t EnorDi);
 /*  */
@@ -62,6 +74,8 @@ void SPI_PriorityConfig(SPI_Handle_t *pHandle);
 void SPI_PeripheralControl(SPI_RegDef_t *pSPIx,uint8_t EnorDi);
 
 void SPI_SSIConfig(SPI_RegDef_t *pSPIx,uint8_t EnorDi);
+
+void SPI_SSOEConfig(SPI_RegDef_t *pSPIx,uint8_t EnorDi);
 
 
 
