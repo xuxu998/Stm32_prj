@@ -1,4 +1,7 @@
-../Src/main.c:65:6:Delay	16	static
-../Src/main.c:85:6:SPI2_GPIOInits	24	static
-../Src/main.c:108:6:SPI2_Init	24	static
-../Src/main.c:122:5:main	56	static
+../Src/main.c:65:25:__SPI_ApplicationCallback	16	static
+../Src/main.c:69:6:Delay	16	static
+../Src/main.c:86:6:SPI2_IRQHandler	8	static
+../Src/main.c:90:6:EXTI9_5_IRQHandler	8	static
+../Src/main.c:107:6:SPI2_GPIOInits	24	static
+../Src/main.c:130:6:SPI2_Init	8	static
+../Src/main.c:143:5:main	24	static

@@ -3,6 +3,7 @@
 #include "stdint.h"
 #include "stm32f4xx_spi.h"
 #include "stm32f4xx_i2c.h"
+#include <stddef.h>
 
 #define __vo    volatile
 
@@ -457,7 +458,7 @@ typedef struct
 #define FRF_BIT_POSITION			4
 #define ERRIE_BIT_POSITION			5
 #define RXNEIE_BIT_POSITION			6
-#define TXEIE_BIT_POISITIOn			7
+#define TXEIE_BIT_POSITION			7
 
 /*Bit position in SPI_SR*/
 
@@ -467,12 +468,10 @@ typedef struct
 #define UDR_BIT_POSITION			3
 #define CRCERR_BIT_POSITION			4
 #define MODF_BIT_POSITION			5
-#define SPI_OVR_BIT_POSITION			6
+#define SPI_OVR_BIT_POSITION		6
 #define BSY_BIT_POSITION			7
 #define FRE_BIT_POSITIOn			8
-#define SPI_READY		  			0
-#define SPI_BUSY_IN_RX    			1
-#define SPI_BUSY_IN_TX    			2
+
 
 /* macro for I2C peripherals */
 
@@ -541,5 +540,5 @@ typedef struct
 
 /*other macro*/
 #define EMPTY 						0
-
+//__attribute((weak))void __SPI_ApplicationCallback(SPI_Handle_t* pSPI_handle,uint8_t EventNumber);
 #endif

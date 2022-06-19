@@ -4,6 +4,13 @@
 
 #include <stdint.h>
 #define __vo volatile
+#define SPI_READY		  			0
+#define SPI_BUSY_IN_RX    			1
+#define SPI_BUSY_IN_TX    			2
+#define SPI_EVENT_RX_CMPLT			1
+#define SPI_EVENT_TX_CMPLT			2
+#define SPI_EVENT_OVR_ERR			3
+
 typedef struct
 {
      /* data */
@@ -61,23 +68,26 @@ void SPI_SendData(SPI_RegDef_t *pSPIx, uint8_t *Txbuffer, uint32_t Len);
 /*  */
 void SPI_ReceiveData(SPI_RegDef_t *pSPIx, uint8_t *Rxbuffer, uint32_t Len);
 /*  */
-void SPI_SendDataIT(SPI_Handle_t *pSPIx_handle, uint8_t *Txbuffer, uint32_t Len);
+uint8_t SPI_SendDataIT(SPI_Handle_t *pSPIx_handle, uint8_t *Txbuffer, uint32_t Len);
 /*  */
-void SPI_ReceiveDataIT(SPI_Handle_t *pSPIx_handle, uint8_t *Rxbuffer, uint32_t Len);
+uint8_t SPI_ReceiveDataIT(SPI_Handle_t *pSPIx_handle, uint8_t *Rxbuffer, uint32_t Len);
 /*  */
 void SPI_InteruptConfig(uint8_t IRQNumber, uint8_t EnorDi);
 /*  */
-void SPI_IrqHandling(uint8_t PinNum);
-/*  */
-void SPI_PriorityConfig(SPI_Handle_t *pHandle);
+//void SPI_PriorityConfig(SPI_Handle_t *pHandle);
+void SPI_PriorityConfig(uint8_t IRQNumber, uint8_t Priority);
 
 void SPI_PeripheralControl(SPI_RegDef_t *pSPIx,uint8_t EnorDi);
+void SPI_IrqHandling(SPI_Handle_t *SPI_Handle_t);
 
 void SPI_SSIConfig(SPI_RegDef_t *pSPIx,uint8_t EnorDi);
 
 void SPI_SSOEConfig(SPI_RegDef_t *pSPIx,uint8_t EnorDi);
-
-
+void SPI_ApplicationCallback(SPI_Handle_t *,uint8_t);
+void SPI_CloseTransmission(SPI_Handle_t *pSPIx_handle);
+void SPI_CloseReception(SPI_Handle_t *pSPIx_handle);
+void SPI_ClearOVRFlag(SPI_RegDef_t *pSPIx);
+void SPI_ApplicationCallback(SPI_Handle_t*,uint8_t);
 
 
 

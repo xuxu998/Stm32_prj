@@ -1,7 +1,9 @@
 #include "stm32f4xx_spi.h"
 #include "stm32f4xx_driver.h"
 
-
+static void spi_ovr_handle(SPI_Handle_t *pSPIx);
+static void spi_reception_handle(SPI_Handle_t *pSPIx);
+static void spi_transmission_handle(SPI_Handle_t *pSPIx);
 /******************************************************************
  * @fn              -
  *
@@ -177,9 +179,13 @@ void SPI_PeriClockControl(SPI_RegDef_t *pSPIx,uint8_t EnorDi)
  * @Note            -
  *
  */
-static uint8_t Is_Empty(SPI_RegDef_t *pSPIx)
+static uint8_t Is_Empty_Tx(SPI_RegDef_t *pSPIx)
 {
 	return (((pSPIx->SR)>>TXE_BIT_POSITION) & 0x00000001);
+}
+static uint8_t Is_Not_Empty_Rx(SPI_RegDef_t *pSPIx)
+{
+	return (((pSPIx->SR)>>RXNE_BIT_POSITION) & 0x00000001);
 }
 static uint8_t Is_16BitFrame(SPI_RegDef_t *pSPIx)
 {
@@ -189,7 +195,7 @@ void SPI_SendData(SPI_RegDef_t *pSPIx, uint8_t *Txbuffer, uint32_t Len)
 {
 	while(Len != EMPTY)
 	{
-		while(!Is_Empty(pSPIx))
+		while(!Is_Empty_Tx(pSPIx))
 		{
 
 		}
@@ -226,7 +232,28 @@ void SPI_SendData(SPI_RegDef_t *pSPIx, uint8_t *Txbuffer, uint32_t Len)
  */
 void SPI_ReceiveData(SPI_RegDef_t *pSPIx, uint8_t *Rxbuffer, uint32_t Len)
 {
+	while(Len != EMPTY)
+	{
+		while(Is_Not_Empty_Rx(pSPIx))
+		{
 
+		}
+		if(Is_16BitFrame(pSPIx))
+		{
+			/*16 bit data frame*/
+			*(uint16_t*)Rxbuffer = pSPIx->DR;
+			(uint16_t*)Rxbuffer++;
+			Len -= 2;
+		}
+		else
+		{
+			/* 8 bit data frame*/
+			*(uint8_t*)Rxbuffer = pSPIx->DR;
+			(uint8_t*)Rxbuffer++;
+			Len -= 1;
+		}
+	}
+	return;
 }
 /******************************************************************
  * @fn              -
@@ -242,9 +269,86 @@ void SPI_ReceiveData(SPI_RegDef_t *pSPIx, uint8_t *Rxbuffer, uint32_t Len)
  * @Note            -
  *
  */
-void SPI_InteruptConfig(uint8_t IRQNumber, uint8_t EnorDi)
+static void spi_transmission_handle(SPI_Handle_t *pSPIx)
 {
+	if(Is_16BitFrame(pSPIx->SPIx))
+		{
+			/*16 bit data frame*/
+			pSPIx->SPIx->DR = *((uint16_t*)pSPIx->Txbuffer);
+			(uint16_t*)pSPIx->Txbuffer++;
+			pSPIx->TxLength -= 2;
+		}
+		else
+		{
+			/* 8 bit data frame*/
+			pSPIx->SPIx->DR = *((uint8_t*)pSPIx->Txbuffer);
+			(uint8_t*)pSPIx->Txbuffer++;
+			pSPIx->TxLength -= 1;
+		}
+	if(pSPIx->TxLength == 0)
+	{
+		SPI_CloseTransmission(pSPIx);
+		//SPI_ApplicationCallback(pSPIx,SPI_EVENT_TX_CMPLT);
+	}
+	return;
+}
+static void spi_reception_handle(SPI_Handle_t *pSPIx)
+{
+	if(Is_16BitFrame(pSPIx->SPIx))
+	{
+		/*16 bit data frame*/
+		*(uint16_t*)(pSPIx->Rxbuffer) = pSPIx->SPIx->DR;
+		(uint16_t*)(pSPIx->Rxbuffer)++;
+		pSPIx->RxLength -= 2;
+	}
+	else
+	{
+		/* 8 bit data frame*/
+		*(uint8_t*)(pSPIx->Rxbuffer) = pSPIx->SPIx->DR;
+		(uint8_t*)(pSPIx->Rxbuffer)++;
+		pSPIx->RxLength -= 1;
+	}
+	if(pSPIx->TxLength == 0)
+	{
+		SPI_CloseReception(pSPIx);
+		//SPI_ApplicationCallback(pSPIx,SPI_EVENT_RX_CMPLT);
+	}
+	return;
 
+}
+static void spi_ovr_handle(SPI_Handle_t *pSPIx)
+{
+	//clear ovr flag
+	uint8_t temp;
+	if(pSPIx->TxState != SPI_BUSY_IN_TX)
+	{
+		temp = pSPIx->SPIx->DR;
+		temp = pSPIx->SPIx->SR;
+	}
+	(void)temp;
+	//inform application
+	//SPI_ApplicationCallback(pSPIx,SPI_EVENT_OVR_ERR);
+
+}
+void SPI_CloseTransmission(SPI_Handle_t *pSPIx)
+{
+	pSPIx->SPIx->CR2 &= ~(1 << TXEIE_BIT_POSITION);
+	pSPIx->Txbuffer = NULL;
+	pSPIx->TxLength = 0;
+	pSPIx->TxState = SPI_READY;
+	SPI_PeripheralControl(SPI2,DISABLE);
+}
+void SPI_CloseReception(SPI_Handle_t *pSPIx)
+{
+	pSPIx->SPIx->CR2 &= ~(1 << RXNEIE_BIT_POSITION);
+	pSPIx->Rxbuffer = NULL;
+	pSPIx->RxLength = 0;
+	pSPIx->RxState = SPI_READY;
+	SPI_PeripheralControl(SPI2,DISABLE);
+}
+void SPI_ClearOVRFlag(SPI_RegDef_t *pSPIx)
+{
+	pSPIx->SR &= ~(1 << SPI_OVR_BIT_POSITION);
 }
 /******************************************************************
  * @fn              -
@@ -260,41 +364,27 @@ void SPI_InteruptConfig(uint8_t IRQNumber, uint8_t EnorDi)
  * @Note            -
  *
  */
-
-/******************************************************************
- * @fn              -
- *
- * @brief
- *
- * @param[in]       -
- * @param[in]       -
- * @param[in]       -
- *
- * @return          -
- *
- * @Note            -
- *
- */
-void SPI_IrqHandling(uint8_t PinNum)
+void SPI_IrqHandling(SPI_Handle_t *SPI_Handle_t)
 {
-
-}
-/******************************************************************
- * @fn              -
- *
- * @brief
- *
- * @param[in]       -
- * @param[in]       -
- * @param[in]       -
- *
- * @return          -
- *
- * @Note            -
- *
- */
-void SPI_PriorityConfig(SPI_Handle_t *pHandle)
-{
+	uint8_t temp1, temp2;
+	temp1 = SPI_Handle_t->SPIx->CR2 & (1 << TXEIE_BIT_POSITION);
+	temp2 = SPI_Handle_t->SPIx->SR & (1 << TXE_BIT_POSITION);
+	if(temp1 && temp2)
+	{
+		spi_transmission_handle(SPI_Handle_t);
+	}
+	temp1 = SPI_Handle_t->SPIx->CR2 & (1 << RXNEIE_BIT_POSITION);
+	temp2 = SPI_Handle_t->SPIx->SR & (1 << RXNE_BIT_POSITION);
+	if(temp1 && temp2)
+	{
+		spi_reception_handle(SPI_Handle_t);
+	}
+	temp1 = SPI_Handle_t->SPIx->CR2 & (1 << ERRIE_BIT_POSITION);
+	temp2 = SPI_Handle_t->SPIx->SR & (1 << SPI_OVR_BIT_POSITION);
+	if(temp1 && temp2)
+	{
+		spi_ovr_handle(SPI_Handle_t);
+	}
 
 }
 /******************************************************************
@@ -395,8 +485,21 @@ uint8_t SPI_GetStatusFlag(SPI_RegDef_t *pSPIx)
  * @Note            -
  *
  */
-void SPI_SendDataIT(SPI_Handle_t *pSPIx_handle, uint8_t *Txbuffer, uint32_t Len)
+uint8_t SPI_SendDataIT(SPI_Handle_t *pSPIx_handle, uint8_t *Txbuffer, uint32_t Len)
 {
+	uint8_t state = pSPIx_handle->TxState;
+	if(state != SPI_BUSY_IN_TX)
+	{
+		//1. save the tx buffer address and length information in some variables
+		pSPIx_handle->Txbuffer = Txbuffer;
+		pSPIx_handle->TxLength = Len;
+		//2. mark SPI state as busy so no other transmission could take the same SPI until transmission is done
+		pSPIx_handle->TxState = SPI_BUSY_IN_TX;
+		//3. Enable the TXEIE control bit to get interrupt whenever TXE flag is set in SR
+		pSPIx_handle->SPIx->CR2 |= 1 << TXEIE_BIT_POSITION;
+		// Data transmission is handled by the ISR code
+	}
+	return state;
 
 }
 /******************************************************************
@@ -413,9 +516,21 @@ void SPI_SendDataIT(SPI_Handle_t *pSPIx_handle, uint8_t *Txbuffer, uint32_t Len)
  * @Note            -
  *
  */
-void SPI_ReceiveDataIT(SPI_Handle_t *pSPIx_handle, uint8_t *Rxbuffer, uint32_t Len)
+uint8_t SPI_ReceiveDataIT(SPI_Handle_t *pSPIx_handle, uint8_t *Rxbuffer, uint32_t Len)
 {
-
+	uint8_t state = pSPIx_handle->RxState;
+	if(state != SPI_BUSY_IN_RX)
+	{
+		//1. save the rx buffer address and length information in some variables
+		pSPIx_handle->Rxbuffer = Rxbuffer;
+		pSPIx_handle->RxLength = Len;
+		//2. mark SPI state as busy so no other reception could take the same SPI until reception is done
+		pSPIx_handle->RxState = SPI_BUSY_IN_RX;
+		//3. Enable the RXNEIE control bit to get interrupt whenever RXNEIE flag is set in SR
+		pSPIx_handle->SPIx->CR2 |= 1 << RXNEIE_BIT_POSITION;
+		// Data reception is handled by the ISR code
+	}
+	return state;
 }
 void SPI_InteruptConfig(uint8_t IRQNumber, uint8_t EnorDi)
 {
@@ -493,9 +608,5 @@ void SPI_PriorityConfig(uint8_t IRQNumber, uint8_t Priority)
 	*(  NVIC_PR_BASE_ADDR + iprx  ) |=  ( Priority << shift_amount );
 #endif
 
-
-}
-void SPI_IrqHandling(uint8_t PinNum)
-{
 
 }
