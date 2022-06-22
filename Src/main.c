@@ -3,6 +3,8 @@
 #include "stm32f4xx_spi.h"
 #include <string.h>
 #undef GPIO_LECTURE
+//#define SPI_LECTURE
+#define I2C_LECTURE
 #if defined GPIO_LECTURE
 GPIO_PinConfig_t UserLed =
 {
@@ -62,6 +64,7 @@ int main(void)
 	return 0;
 }
 #endif
+#if defined SPI_LECTURE
 __attribute((weak))void __SPI_ApplicationCallback(SPI_Handle_t* pSPI_handle,uint8_t EventNumber)
 {
 
@@ -134,7 +137,7 @@ void SPI2_Init(void)
 	SPI2handle.SPIConfig.SPI_DeviceMode = SPI_DEVICE_MASTER;
 	SPI2handle.SPIConfig.SPI_ClkSpeed = SPI_CLOCK_DIV2;
 	SPI2handle.SPIConfig.SPI_DFF = SPI_DFF_8BITS;
-	SPI2handle.SPIConfig.SPI_CPHA = SPI_CPHA_HIGH;
+	SPI2handle.SPIConfig.SPI_CPHA = SPI_CPHA_LOW;
 	SPI2handle.SPIConfig.SPI_CPOL = SPI_CPOL_HIGH;
 	SPI2handle.SPIConfig.SPI_SSM = SPI_SSM_EN;
 	SPI_Init(&SPI2handle);
@@ -143,20 +146,20 @@ void SPI2_Init(void)
 int main(void)
 {
 	GPIO_Handle_t GpioButton;
-		memset(&GpioButton,0,sizeof(GpioButton));
-		GpioButton.pGPIOx = GPIOD;
-		GpioButton.GPIO_PinConfig = UserButton;
-		GPIO_PeriClockControl(GpioButton.pGPIOx,ENABLE);
-		GPIO_Init(&GpioButton);
-		GPIO_PriorityConfig(IRQ_NO_EXTI9_5,10);
-		GPIO_InteruptConfig(IRQ_NO_EXTI9_5,ENABLE);
+	memset(&GpioButton,0,sizeof(GpioButton));
+	GpioButton.pGPIOx = GPIOD;
+	GpioButton.GPIO_PinConfig = UserButton;
+	GPIO_PeriClockControl(GpioButton.pGPIOx,ENABLE);
+	GPIO_Init(&GpioButton);
+	GPIO_PriorityConfig(IRQ_NO_EXTI9_5,10);
+	GPIO_InteruptConfig(IRQ_NO_EXTI9_5,ENABLE);
 	SPI2_GPIOInits();
 	SPI2_Init();
 	SPI_InteruptConfig(36,ENABLE);
 	SPI_PriorityConfig(36,11);
 	//enable SPI2 peripherals
-	SPI_SSIConfig(SPI2,ENABLE);
-	//SPI_SSOEConfig(SPI2,ENABLE);
+	//SPI_SSIConfig(SPI2,DISABLE);
+	SPI_SSOEConfig(SPI2,ENABLE);
 	//SPI_PeripheralControl(SPI2,ENABLE);
 	//SPI_SSOEConfig(SPI2,ENABLE);
 	//SPI_SendData(SPI2,(uint8_t*)user_data,(uint32_t)strlen(user_data));
@@ -173,4 +176,72 @@ int main(void)
 	}
 	return 0;
 }
+#endif
+#if defined I2C_LECTURE
+GPIO_PinConfig_t UserButton =
+{
+		.GPIO_PinNumber = GPIO_PIN_NO_5,
+		.GPIO_PinMode = GPIO_MODE_IT_FT,
+		.GPIO_PinSpeed = GPIO_SPEED_LOW,
+		.GPIO_PinPuPdControl = GPIO_PIN_PU,
+		.GPIO_AltFunMode = 0
+};
+void Delay(void)
+{
+	for(int us = 0 ; us <= 500000 ; us++)
+	{
 
+	}
+}
+I2C_Handle_t I2C_handle;
+uint8_t buffer[] = "pham ngoc dat";
+void EXTI9_5_IRQHandler(void)
+{
+	Delay();
+	GPIO_IrqHandling(5);
+	I2C_MasterSendData(&I2C_handle,buffer,sizeof(buffer),30);
+}
+void I2C_Initialization(void)
+{
+	GPIO_Handle_t I2CPins;
+	I2CPins.pGPIOx = GPIOB;
+	I2CPins.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_ALT;
+	I2CPins.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_PIN_PU;
+	I2CPins.GPIO_PinConfig.GPIO_AltFunMode = 4;
+	I2CPins.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_HIGH;
+	I2CPins.GPIO_PinConfig.GPIO_PinOpType = GPIO_OP_TYPE_OD;
+	//SCL
+	I2CPins.GPIO_PinConfig.GPIO_PinNumber = 6;
+	GPIO_Init(&I2CPins);
+	//SDA
+	I2CPins.GPIO_PinConfig.GPIO_PinNumber = 9;
+	GPIO_Init(&I2CPins);
+
+}
+int main(void)
+{
+	GPIO_Handle_t GpioButton;
+	memset(&GpioButton,0,sizeof(GpioButton));
+	GpioButton.pGPIOx = GPIOD;
+	GpioButton.GPIO_PinConfig = UserButton;
+	GPIO_PeriClockControl(GpioButton.pGPIOx,ENABLE);
+	GPIO_Init(&GpioButton);
+	GPIO_PriorityConfig(IRQ_NO_EXTI9_5,10);
+	GPIO_InteruptConfig(IRQ_NO_EXTI9_5,ENABLE);
+
+
+	memset(&I2C_handle,0, sizeof(I2C_handle));
+	I2C_handle.I2C_Config.I2C_SCLSpeed =(uint32_t)I2C_SCL_SPEED_SM;
+	I2C_handle.I2C_Config.I2C_DeviceAddress = 0x61;
+	I2C_handle.I2C_Config.I2C_ACKControl = I2C_ACK_ENABLE;
+	I2C_handle.I2C_Config.I2C_FMDutyCycle = I2C_FM_DUTY_2;
+	I2C_handle.I2Cx = I2C1;
+	I2C_Init(&I2C_handle);
+	I2C_Initialization();
+	I2C_PeripheralControl(I2C1,ENABLE);
+	//I2C_MasterSendData(&I2C_handle,buffer,sizeof(buffer),10);
+	while(1)
+	{
+	}
+}
+#endif
