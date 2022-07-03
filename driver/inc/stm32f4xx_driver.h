@@ -274,6 +274,10 @@ typedef struct
 
 
 
+#define UART4                           ((UART_RegDef_t*)UART4_BASEADDR)
+
+
+
 #define RCC                         ((RCC_RegDef_t*)RRC_BASEADDR)
 #define EXTI                        ((EXTI_RegDef_t*)EXTI_BASEADDR)
 #define SYSCFG                      ((SYSCFG_RegDef_t*)SYSCFG_BASEADDR)
@@ -327,6 +331,9 @@ typedef struct
 #define USART3_PCLK_EN()         (RCC->APB1ENR |= (1<<18))
 #define UART4_PCLK_EN()          (RCC->APB1ENR |= (1<<19))
 #define UART5_PCLK_EN()          (RCC->APB1ENR |= (1<<20))
+
+
+#define UART4_PCLK_DI()          (RCC->APB1ENR &= ~(1<<19))
 
 /* Clcok enable macros for SYSCFG peripherals */
 

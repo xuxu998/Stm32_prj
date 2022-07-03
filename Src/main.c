@@ -1,10 +1,12 @@
 #include "stm32f4xx_driver.h"
 #include "stm32f4xx_gpio.h"
 #include "stm32f4xx_spi.h"
+#include "stm32f4xx_uart.h"
 #include <string.h>
-#undef GPIO_LECTURE
+//#define GPIO_LECTURE
 //#define SPI_LECTURE
-#define I2C_LECTURE
+//#define I2C_LECTURE
+#define UART_LECTURE
 #if defined GPIO_LECTURE
 GPIO_PinConfig_t UserLed =
 {
@@ -243,5 +245,69 @@ int main(void)
 	while(1)
 	{
 	}
+}
+#endif
+#ifdef UART_LECTURE
+GPIO_PinConfig_t UserButton =
+{
+		.GPIO_PinNumber = GPIO_PIN_NO_5,
+		.GPIO_PinMode = GPIO_MODE_IT_FT,
+		.GPIO_PinSpeed = GPIO_SPEED_LOW,
+		.GPIO_PinPuPdControl = GPIO_PIN_PU,
+		.GPIO_AltFunMode = 0
+};
+void Delay(void)
+{
+	for(int us = 0 ; us <= 500000 ; us++)
+	{
+
+	}
+}
+USART_Handle_t USART_handle;
+uint8_t buffer[] = "7/3/2022";
+void EXTI9_5_IRQHandler(void)
+{
+	Delay();
+	GPIO_IrqHandling(5);
+	USART_TransmitData(&USART_handle,buffer,sizeof(buffer));
+}
+void UART_Initialization()
+{
+	GPIO_Handle_t UARTPin;
+	UARTPin.pGPIOx = GPIOA;
+	UARTPin.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_ALT;
+	UARTPin.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_PIN_PU;
+	UARTPin.GPIO_PinConfig.GPIO_AltFunMode = 8;
+	UARTPin.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_HIGH;
+	UARTPin.GPIO_PinConfig.GPIO_PinOpType = GPIO_OP_TYPE_PP;
+	UARTPin.GPIO_PinConfig.GPIO_PinNumber = 0;
+	GPIO_Init(&UARTPin);
+	UARTPin.GPIO_PinConfig.GPIO_PinNumber = 1;
+	GPIO_Init(&UARTPin);
+}
+int main(void)
+{
+	GPIO_Handle_t GpioButton;
+	UART_Initialization();
+	memset(&GpioButton,0,sizeof(GpioButton));
+	GpioButton.pGPIOx = GPIOD;
+	GpioButton.GPIO_PinConfig = UserButton;
+	GPIO_PeriClockControl(GpioButton.pGPIOx,ENABLE);
+	GPIO_Init(&GpioButton);
+	GPIO_PriorityConfig(IRQ_NO_EXTI9_5,10);
+	GPIO_InteruptConfig(IRQ_NO_EXTI9_5,ENABLE);
+
+	USART_handle.USARTx = UART4;
+	USART_handle.UART_Config.BaudRate = 115200;
+	USART_handle.UART_Config.NumberOfStopBit = STOP_BIT_2;
+	USART_handle.UART_Config.Parity = UART_PARITY_DISABLE;
+	USART_handle.UART_Config.WordLength = UART_WORD_LENGTH_8_BITS;
+	USART_Init(&USART_handle);
+	Control_USART(UART4,ENABLE);
+	while(1)
+	{
+
+	}
+
 }
 #endif

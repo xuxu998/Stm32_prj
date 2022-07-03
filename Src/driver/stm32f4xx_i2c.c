@@ -43,6 +43,17 @@ static inline uint8_t I2C_GetFlagStatus(I2C_RegDef_t *I2Cx,uint8_t FlagName)
 		return FLAG_RESET;
 	}
 }
+static inline void ACK_Control(I2C_RegDef_t *I2Cx,uint8_t state)
+{
+	if(state == ENABLE)
+	{
+		I2Cx->CR1 |= (1 << I2C_ACK_BIT_POSITION);
+	}
+	else
+	{
+		I2Cx->CR1 &= ~(1 << I2C_ACK_BIT_POSITION);
+	}
+}
 static inline void I2C_ExecuteAddressPhaseWrite(I2C_RegDef_t *I2Cx,uint8_t SlaveAddress)
 {
 	SlaveAddress = SlaveAddress << 1;
@@ -55,11 +66,38 @@ static inline void I2C_ExecuteAddressPhaseRead(I2C_RegDef_t *I2Cx,uint8_t SlaveA
 	SlaveAddress |= 1 << 0;
 	I2Cx->DR = SlaveAddress;
 }
-static inline void I2C_ADDRClearFlag(I2C_RegDef_t *I2Cx)
+static inline void I2C_ADDRClearFlag(I2C_Handle_t *I2C_Handle)
 {
-	uint32_t dummy = I2Cx->SR1;
-	dummy = I2Cx->SR2;
-	(void)dummy;
+	uint32_t dummy;
+	if(I2C_Handle->I2Cx->SR2 >> I2C_MSL_BIT_POSITION & 0x1)
+	{
+		if(I2C_Handle->TxRxStatus == I2C_BUSY_IN_RX)
+		{
+			if(I2C_Handle->RxSize == 1)
+			{
+				ACK_Control(I2C_Handle->I2Cx,DISABLE);
+				/* clear addr flag */
+				dummy = I2C_Handle->I2Cx->SR1;
+				dummy = I2C_Handle->I2Cx->SR2;
+				(void)dummy;
+			}
+		}
+		else
+		{
+			/* clear addr flag */
+			dummy = I2C_Handle->I2Cx->SR1;
+			dummy = I2C_Handle->I2Cx->SR2;
+			(void)dummy;
+		}
+	}
+	else
+	{
+		/* clear addr flag */
+		dummy = I2C_Handle->I2Cx->SR1;
+		dummy = I2C_Handle->I2Cx->SR2;
+		(void)dummy;
+	}
+	
 
 }
 static inline void I2C_BufferInteruptEnable(I2C_RegDef_t *I2Cx)
@@ -76,17 +114,6 @@ static inline void I2C_ErrorInteruptEnable(I2C_RegDef_t *I2Cx)
 {
 	I2Cx->CR2 |= (1 << ITERREN_BIT_POSITION);
 	return;
-}
-static inline void ACK_Control(I2C_RegDef_t *I2Cx,uint8_t state)
-{
-	if(state == ENABLE)
-	{
-		I2Cx->CR1 |= (1 << I2C_ACK_BIT_POSITION);
-	}
-	else
-	{
-		I2Cx->CR1 &= ~(1 << I2C_ACK_BIT_POSITION);
-	}
 }
 void I2C_MasterSendData(I2C_Handle_t *pHandle,uint8_t *buffer,uint8_t Len,uint8_t SlaveAddress)
 {
@@ -129,7 +156,7 @@ void I2C_MasterSendData(I2C_Handle_t *pHandle,uint8_t *buffer,uint8_t Len,uint8_
 	/*4. waiting for ADDR flag is set */
 	while( !  I2C_GetFlagStatus(pHandle->I2Cx,I2C_FLAG_ADDR));
 	//5 clear ADDR flag.
-	I2C_ADDRClearFlag(pHandle->I2Cx);
+	I2C_ADDRClearFlag(pHandle);
 	while(Len != EMPTY)
 	{
 		while(I2C_GetFlagStatus(pHandle->I2Cx,I2C_FLAG_TXE));
@@ -154,7 +181,7 @@ void I2C_MasterReceiveData(I2C_Handle_t *pHandle,uint8_t *buffer,uint8_t Len,uin
 	/*4. waiting for ADDR flag is set */
 	while(!I2C_GetFlagStatus(pHandle->I2Cx,I2C_FLAG_ADDR));
 	//5 clear ADDR flag.
-	I2C_ADDRClearFlag(pHandle->I2Cx);
+	I2C_ADDRClearFlag(pHandle);
 	if(Len > 1)
 	{
 		while(Len != EMPTY)
@@ -452,31 +479,88 @@ void I2C_EV_IRQHandling(I2C_Handle_t *I2C_Handle)
 	{
 		/* ADDR flag is set */
 		ADDR_Ev_Handler();
-		I2C_ADDRClearFlag(I2C_Handle->I2Cx);
+		I2C_ADDRClearFlag(I2C_Handle);
 	}
 	temp3 = (I2C_Handle->I2Cx->SR1 >> I2C_BTF_BIT_POSITION) & 0x1;
 	if(temp3 & temp1)
 	{
 		/* BTF flag is set */
 		BTF_Ev_Handler();
+		if(I2C_Handle->TxRxStatus == I2C_BUSY_IN_TX)
+		{
+			if(I2C_Handle->TxLength == 0)
+			{
+				if(I2C_GetFlagStatus(I2C_Handle->I2Cx,I2C_FLAG_TXE))
+				{
+					if(I2C_Handle->Sr == DISABLE)
+					I2CStop(I2C_Handle->I2Cx);
+					//reset all member(not done yet!)
+					// LECTURE_221_CONTINUE
+					//notify application about transmission complete(not done yet!)
+				}
+			}
+		}
+		else
+		{
+
+		}
 	}
 	temp3 = (I2C_Handle->I2Cx->SR1 >> I2C_STOPF_BIT_POSITION) & 0x1;
 	if(temp3 & temp1)
 	{
 		/* STOPF flag is set */
 		STOPF_Ev_Handler();
+
 	}
 	temp3 = (I2C_Handle->I2Cx->SR1 >> I2C_TXE_BIT_POSITION) & 0x1;
 	if(temp3 & temp1 & temp2)
 	{	
 		/* TXE flag is set */
 		TXE_Ev_Handler();
+		if(I2C_Handle->I2Cx->SR1 >> I2C_MSL_BIT_POSITION & 0x1)
+		{
+			if(I2C_Handle->TxRxStatus == I2C_BUSY_IN_TX)
+			{
+				/* load the data into data register */
+				I2C_Handle->I2Cx->DR = *(I2C_Handle->TxBuffer);
+				/* increase the pointer pointing to the next byte */
+				I2C_Handle->TxBuffer++;
+				/* decrease the number of bytes need to be transmiting */
+				I2C_Handle->TxLength--;
+			}
+		}
 	}
 	temp3 = (I2C_Handle->I2Cx->SR1 >> I2C_RXNE_BIT_POSITION) & 0x1;
 	if(temp3 & temp1 & temp2)
 	{
 		/* RXNE flag is set */
 		RXNE_Ev_Handler();
+		if(I2C_Handle->TxRxStatus == I2C_BUSY_IN_RX)
+		{
+			if(I2C_Handle->RxSize == 1)
+			{
+				*(I2C_Handle->RxBuffer) = I2C_Handle->I2Cx->DR;
+				I2C_Handle->RxLength--;
+			}
+			if(I2C_Handle->RxSize > 1)
+			{
+				if(I2C_Handle->RxLength == 2)
+				{
+					/* clear ack bit */
+					ACK_Control(I2C_Handle->I2Cx,DISABLE);
+				}
+				*(I2C_Handle->RxBuffer) = I2C_Handle->I2Cx->DR;
+				I2C_Handle->RxLength--;
+				I2C_Handle->RxBuffer++;
+			}
+			if(I2C_Handle->RxLength == 0)
+			{
+				if(I2C_Handle->Sr == DISABLE)
+				{
+					I2CStop(I2C_Handle->I2Cx);
+				}
+			}
+		}
 	}
 
 

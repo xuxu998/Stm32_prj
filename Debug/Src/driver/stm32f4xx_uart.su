@@ -1,0 +1,14 @@
+../Src/driver/stm32f4xx_uart.c:2:10:GetPLLClock	4	static
+../Src/driver/stm32f4xx_uart.c:6:6:Control_USART	16	static
+../Src/driver/stm32f4xx_uart.c:17:20:Transmission_Control	16	static
+../Src/driver/stm32f4xx_uart.c:28:23:Transmision_Not_Complete	16	static
+../Src/driver/stm32f4xx_uart.c:32:23:Busy_Tx	16	static
+../Src/driver/stm32f4xx_uart.c:36:17:GetClock	64	static
+../Src/driver/stm32f4xx_uart.c:78:20:BaudRateSetting	40	static
+../Src/driver/stm32f4xx_uart.c:99:6:USART_Init	16	static
+../Src/driver/stm32f4xx_uart.c:136:6:USART_PeriClockControl	16	static
+../Src/driver/stm32f4xx_uart.c:155:6:USART_TransmitData	24	static
+../Src/driver/stm32f4xx_uart.c:173:6:USART_ReceiveData	24	static
+../Src/driver/stm32f4xx_uart.c:178:6:USART_InteruptConfig	24	static
+../Src/driver/stm32f4xx_uart.c:196:6:USART_IrqHandling	16	static
+../Src/driver/stm32f4xx_uart.c:201:6:USART_PriorityConfig	24	static

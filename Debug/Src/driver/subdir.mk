@@ -7,17 +7,20 @@
 C_SRCS += \
 ../Src/driver/stm32f4xx_gpio.c \
 ../Src/driver/stm32f4xx_i2c.c \
-../Src/driver/stm32f4xx_spi.c 
+../Src/driver/stm32f4xx_spi.c \
+../Src/driver/stm32f4xx_uart.c 
 
 OBJS += \
 ./Src/driver/stm32f4xx_gpio.o \
 ./Src/driver/stm32f4xx_i2c.o \
-./Src/driver/stm32f4xx_spi.o 
+./Src/driver/stm32f4xx_spi.o \
+./Src/driver/stm32f4xx_uart.o 
 
 C_DEPS += \
 ./Src/driver/stm32f4xx_gpio.d \
 ./Src/driver/stm32f4xx_i2c.d \
-./Src/driver/stm32f4xx_spi.d 
+./Src/driver/stm32f4xx_spi.d \
+./Src/driver/stm32f4xx_uart.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -27,7 +30,7 @@ Src/driver/%.o Src/driver/%.su: ../Src/driver/%.c Src/driver/subdir.mk
 clean: clean-Src-2f-driver
 
 clean-Src-2f-driver:
-	-$(RM) ./Src/driver/stm32f4xx_gpio.d ./Src/driver/stm32f4xx_gpio.o ./Src/driver/stm32f4xx_gpio.su ./Src/driver/stm32f4xx_i2c.d ./Src/driver/stm32f4xx_i2c.o ./Src/driver/stm32f4xx_i2c.su ./Src/driver/stm32f4xx_spi.d ./Src/driver/stm32f4xx_spi.o ./Src/driver/stm32f4xx_spi.su
+	-$(RM) ./Src/driver/stm32f4xx_gpio.d ./Src/driver/stm32f4xx_gpio.o ./Src/driver/stm32f4xx_gpio.su ./Src/driver/stm32f4xx_i2c.d ./Src/driver/stm32f4xx_i2c.o ./Src/driver/stm32f4xx_i2c.su ./Src/driver/stm32f4xx_spi.d ./Src/driver/stm32f4xx_spi.o ./Src/driver/stm32f4xx_spi.su ./Src/driver/stm32f4xx_uart.d ./Src/driver/stm32f4xx_uart.o ./Src/driver/stm32f4xx_uart.su
 
 .PHONY: clean-Src-2f-driver
 

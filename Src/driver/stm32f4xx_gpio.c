@@ -93,7 +93,7 @@ void GPIO_Init(GPIO_Handle_t *pGPIO)
         tempReg = 0;
         if(pGPIO->GPIO_PinConfig.GPIO_PinNumber < 8)
         {
-            tempReg = pGPIO->pGPIOx->AFR[1] & ~(0xF << pGPIO->GPIO_PinConfig.GPIO_PinNumber * 4);
+            tempReg = pGPIO->pGPIOx->AFR[0] & ~(0xF << pGPIO->GPIO_PinConfig.GPIO_PinNumber * 4);
             pGPIO->pGPIOx->AFR[0] = tempReg | (pGPIO->GPIO_PinConfig.GPIO_AltFunMode << pGPIO->GPIO_PinConfig.GPIO_PinNumber * 4);
         }
         else
