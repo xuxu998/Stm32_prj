@@ -40,6 +40,15 @@
 #define UART_OVER8_BIT_POS                              (15U)
 #define UART_FRACTION_POS                               (0U)
 
+#define UART_BUSY_IN_TX                                 (0U)
+#define UART_BUSY_IN_RX                                 (1U)
+#define UART_READY                                      (2U)
+
+#define UART4_IRQ_NUMBER                                (52U)
+#define UART5_IRQ_NUMBER                                (53U)
+#define UART4_DEFAULT_PRIORITY                          (59U)
+#define UART5_DEFAULT_PRIORITY                          (60U)
+
 typedef struct 
 {
     /* data */
@@ -67,14 +76,19 @@ typedef struct
     /* data */
     UART_RegDef_t *USARTx;
     USART_Config_t UART_Config;
-
+    uint8_t *TxBuffer;
+    uint8_t TxLength;
+    uint8_t TxState;
 }USART_Handle_t;
 void Control_USART(UART_RegDef_t *USARTx,uint8_t EnOrDi);
 void USART_Init(USART_Handle_t *USART_Handle);
 void USART_PeriClockControl(UART_RegDef_t *USARTx,uint8_t EnorDi);
 
 void USART_TransmitData(USART_Handle_t *USART_Handle_t,uint8_t *buffer,uint8_t Length);
+uint8_t USART_TransmitDataIT(USART_Handle_t *USART_Handle_t,uint8_t *buffer,uint8_t Length);
+void USART_Handling(USART_Handle_t *USART_Handle_t);
 void USART_ReceiveData(USART_Handle_t *USART_Handle_t,uint8_t *buffer,uint8_t Length);
+void USART_ReceiveDataIT(USART_Handle_t *USART_Handle_t,uint8_t *buffer,uint8_t Length);
 
 void USART_InteruptConfig(uint8_t IRQNumber, uint8_t EnorDi);
 /*  */

@@ -264,12 +264,17 @@ void Delay(void)
 	}
 }
 USART_Handle_t USART_handle;
-uint8_t buffer[] = "7/3/2022";
+uint8_t buffer[] = "pham ngoc dat";
+void UART4_IRQHandler(void)
+{
+	USART_Handling(&USART_handle);
+}
 void EXTI9_5_IRQHandler(void)
 {
 	Delay();
 	GPIO_IrqHandling(5);
-	USART_TransmitData(&USART_handle,buffer,sizeof(buffer));
+	//USART_TransmitData(&USART_handle,buffer,sizeof(buffer));
+	USART_TransmitDataIT(&USART_handle,buffer,sizeof(buffer));
 }
 void UART_Initialization()
 {
@@ -302,6 +307,9 @@ int main(void)
 	USART_handle.UART_Config.NumberOfStopBit = STOP_BIT_2;
 	USART_handle.UART_Config.Parity = UART_PARITY_DISABLE;
 	USART_handle.UART_Config.WordLength = UART_WORD_LENGTH_8_BITS;
+	USART_handle.TxState = UART_READY;
+	USART_InteruptConfig(UART4_IRQ_NUMBER,ENABLE);
+	USART_PriorityConfig(UART4_IRQ_NUMBER,UART4_DEFAULT_PRIORITY);
 	USART_Init(&USART_handle);
 	Control_USART(UART4,ENABLE);
 	while(1)

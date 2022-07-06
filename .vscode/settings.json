@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "stm32f4xx_driver.h": "c"
+        "stm32f4xx_driver.h": "c",
+        "stm32f4xx_uart.h": "c",
+        "stm32f4xx_spi.h": "c"
     }
 }

@@ -26,5 +26,5 @@
 ../Src/driver/stm32f4xx_i2c.c:451:20:TXE_Ev_Handler	4	static
 ../Src/driver/stm32f4xx_i2c.c:455:20:RXNE_Ev_Handler	4	static
 ../Src/driver/stm32f4xx_i2c.c:459:6:I2C_EV_IRQHandling	32	static
-../Src/driver/stm32f4xx_i2c.c:571:6:I2C_ER_IRQHandling	16	static
-../Src/driver/stm32f4xx_i2c.c:575:6:I2C_ApplicationEventCallback	16	static
+../Src/driver/stm32f4xx_i2c.c:570:6:I2C_ER_IRQHandling	16	static
+../Src/driver/stm32f4xx_i2c.c:574:6:I2C_ApplicationEventCallback	16	static

@@ -1,4 +1,23 @@
 #include "stm32f4xx_uart.h"
+static inline void TXEIE_Control(UART_RegDef_t *USARTx,uint8_t EnorDi)
+{
+    if(EnorDi == ENABLE)
+    {
+        USARTx->CR1 |= 1 << UART_TXE_BIT_POS;
+    }
+    else
+    {
+        USARTx->CR1 &= ~(1 << UART_TXE_BIT_POS);
+    }
+}
+static inline uint8_t Is_TXEIE_Enable(UART_RegDef_t *USARTx)
+{
+    return (USARTx->CR1 >> UART_TXE_BIT_POS ) & 0x1;
+}
+static inline uint8_t Is_TXE_Set(UART_RegDef_t *USARTx)
+{
+    return (USARTx->SR >> UART_TXE_BIT_POS ) & 0x1;
+}
 uint32_t GetPLLClock()
 {
 	return 0;
@@ -151,7 +170,36 @@ void USART_PeriClockControl(UART_RegDef_t *USARTx,uint8_t EnorDi)
         }
     }
 }
-
+void USART_Handling(USART_Handle_t *USART_Handle_t)
+{
+    if(Is_TXEIE_Enable(USART_Handle_t->USARTx) && Is_TXE_Set(USART_Handle_t->USARTx))
+    {
+        Transmission_Control(USART_Handle_t->USARTx,ENABLE);
+        USART_Handle_t->USARTx->DR = *USART_Handle_t->TxBuffer;
+        USART_Handle_t->TxBuffer++;
+        USART_Handle_t->TxLength--;
+        if(USART_Handle_t->TxLength == 0)
+        {
+        	USART_Handle_t->TxState = UART_READY;
+        	TXEIE_Control(USART_Handle_t->USARTx,DISABLE);
+        }
+    }
+}
+uint8_t USART_TransmitDataIT(USART_Handle_t *USART_Handle_t,uint8_t *buffer,uint8_t Length)
+{
+    uint8_t state = USART_Handle_t->TxState;
+    if(USART_Handle_t->TxState != UART_BUSY_IN_TX)
+    {
+        /* set new data  */
+        USART_Handle_t->TxBuffer = buffer;
+        USART_Handle_t->TxLength = Length;
+        /* set state */
+        USART_Handle_t->TxState = UART_BUSY_IN_TX;
+        /* enable interupt for TXE */
+        TXEIE_Control(USART_Handle_t->USARTx,ENABLE);
+    }
+    return state;
+}
 void USART_TransmitData(USART_Handle_t *USART_Handle_t,uint8_t *buffer,uint8_t Length)
 {
     /* UART enable by writing UE bit in CR1 to 1 */

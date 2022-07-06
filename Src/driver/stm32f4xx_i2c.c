@@ -510,7 +510,6 @@ void I2C_EV_IRQHandling(I2C_Handle_t *I2C_Handle)
 	{
 		/* STOPF flag is set */
 		STOPF_Ev_Handler();
-
 	}
 	temp3 = (I2C_Handle->I2Cx->SR1 >> I2C_TXE_BIT_POSITION) & 0x1;
 	if(temp3 & temp1 & temp2)
